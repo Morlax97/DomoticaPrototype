@@ -32,7 +32,7 @@ udpServer.on('message', (msg, rinfo) => {
     con.query(`SELECT setup FROM Devices WHERE DevicesID = ${ request.id }`, function (err,rows,fields) {
       if (err) throw err;
       udpServer.send(rows[0].setup,2500,`${rinfo.address}`, (err) => {
-        throw err;
+        if (err) throw err;
       });
     });
   }
