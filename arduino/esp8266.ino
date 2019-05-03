@@ -3,11 +3,11 @@
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
 
-const char* ssid     = "HF-Staff";
-const char* password = "S74ffW1F1";
+const char* ssid     = "";
+const char* password = "";
 char* action = "action/device/1";
 char* estado = "status/device/1";
-char* server = "cherencio.henryford.esc.edu.ar";
+char* server = "";
 unsigned int bcastPort = 3000;
 unsigned int udpLocalPort = 2500;
 int LEDPin = 13; // D7
