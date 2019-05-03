@@ -1,16 +1,27 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <WiFiUdp.h>
+#include <ArduinoJson.h>
 
-const char* ssid     = "";
-const char* password = "";
+const char* ssid     = "HF-Staff";
+const char* password = "S74ffW1F1";
 char* action = "action/device/1";
 char* estado = "status/device/1";
-char* server = "";
+char* server = "cherencio.henryford.esc.edu.ar";
+unsigned int bcastPort = 3000;
+unsigned int udpLocalPort = 2500;
 int LEDPin = 13; // D7
 int BotPin = 14; // D5
 int override = 0;
+int configured = 0;
+char* bcastPacket = "{\"id\":1,\"type\":\"device\"}";
+char incomingPacket[255];
+char* bcastIP = "10.0.20.22";
+StaticJsonDocument<200> jsonDocument;
 WiFiClient wifiClient;
+WiFiUDP Udp;
 PubSubClient client(wifiClient);
+
 void callback(char* topic, byte* payload, unsigned int length) {
   if (digitalRead(BotPin)) {
     byte *p = new byte(length);
@@ -28,7 +39,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   Serial.begin(115200);
   delay(100);
-  pinMode(LEDPin, OUTPUT);
+  WiFi.mode(WIFI_STA);
   pinMode(BotPin, INPUT_PULLUP);
   WiFi.begin(ssid, password);
   
@@ -46,6 +57,38 @@ void setup() {
   client.setCallback(callback);
   client.connect("ESP8266Client");
   client.subscribe(action);
+
+  Udp.begin(udpLocalPort);
+
+  while (!configured){
+     delay(1000);
+     Udp.beginPacket(bcastIP, bcastPort);
+     Udp.write(bcastPacket);
+     Udp.endPacket();
+     Serial.printf("Setup packet sent!\n");
+     int packetSize = Udp.parsePacket();
+     if (packetSize) {
+       int len = Udp.read(incomingPacket, 255);
+       if (len > 0){
+         incomingPacket[len] = 0;
+         }
+       Serial.printf("UDP packet contents: %s\n", incomingPacket);
+       auto error = deserializeJson(jsonDocument, incomingPacket);
+       if(error) {
+         Serial.println("deserializeJson() failed\n");
+         return;
+         }
+       else{
+         const int pin = jsonDocument["pin"];
+         const String mode = jsonDocument["mode"];
+         if (mode.equals("OUTPUT")) {
+           Serial.printf("Configuring pin as output\n");
+           pinMode(pin, OUTPUT);
+           configured = 1;
+           }
+         }
+       }
+     }
 }
 
 
@@ -62,4 +105,4 @@ void loop() {
   if(digitalRead(LEDPin)) {client.publish(estado,"1");}
   else {client.publish(estado,"0");}
   client.loop();
-}
+  }

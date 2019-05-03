@@ -5,6 +5,7 @@ const dgram = require("dgram");
 const mqtt = require("mqtt");
 const parser = require("body-parser");
 const app = express();
+const udpServer = dgram.createSocket('udp4');
 const con = mysql.createConnection({
   host: "localhost",
   user: "apiuser",
@@ -18,6 +19,31 @@ con.connect(function(err) {
   if (err) throw err;
   console.log("Database connected.");
 });
+
+udpServer.on('error', (err) => {
+  console.log(`UDP server error:\n${err.stack}`);
+  server.close();
+});
+
+udpServer.on('message', (msg, rinfo) => {
+  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+  var request = JSON.parse(msg);
+  if (request.type == "device") {
+    con.query(`SELECT setup FROM Devices WHERE DevicesID = ${ request.id }`, function (err,rows,fields) {
+      if (err) throw err;
+      udpServer.send(rows[0].setup,2500,`${rinfo.address}`, (err) => {
+        throw err;
+      });
+    });
+  }
+});
+
+udpServer.on('listening', () => {
+  const address = udpServer.address();
+  console.log(`server listening ${address.address}:${address.port}`);
+});
+
+udpServer.bind(3000);
 
 function toggleDevice(id,status) {
   var newStatus
@@ -72,4 +98,3 @@ mqttClient.on("message", function(topic,message) {
 app.listen(3000, () => {
  console.log("El servidor está inicializado en el puerto 3000");
 });
-
