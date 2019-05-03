@@ -61,7 +61,7 @@ git config --global user.email EMAIL
 git remote add origin https://github.com/Morlax97/DomoticaPrototype.git
 git pull origin master
 ```
-Iniciar el servidor mediante ``` node /home/pi/prototype/nodejs/index.js ```
+Iniciar el servidor mediante ``` node /home/pi/prototype/nodejs/restapi/index.js ```
 
 ### Configurar Web GUI
 
