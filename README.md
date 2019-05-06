@@ -4,7 +4,7 @@ Prototipo de la alternativa de proyecto N°1 del Grupo 1 de la materia Ingenier�
 
 ## El Proyecto
 
-El proyecto consiste de un sistema de domótica que permite el control y la automatización de los aparatos electricos de un lugar. En nuestro caso, pensamos en su aplicación práctica dentro de la facultad.
+El proyecto consiste de un sistema de domótica que permite el control y la automatización de los aparatos eléctricos de un lugar. En nuestro caso, pensamos en su aplicación práctica dentro de la facultad.
 
 ## Arquitectura del prototipo
 
@@ -16,6 +16,13 @@ En su versión actual el prototipo está compuesto por un servidor, una Raspberr
   * NodeJS - Entorno sobre el cual está hecho el backend.
   * MariaDB - Base de datos accedida por el backend para guardar información sobre los dispositivos.
   * Mosquitto - Servidor MQTT que permite la comunicación entre el backend y los dispositivos.
+
+## Funcionamiento del prototipo
+
+Al iniciar el servidor, se suscribe al canal de MQTT por el cual va a recibir los mensajes del dispositivo. También empieza a escuchar en el puerto 3000 tanto en UDP como TCP.
+Al encender el microcontrolador, este se conecta a la red inalámbrica que tenga configurada, y luego hace un broadcast al puerto 3000 UDP informando su ID y pidiendo configuración. El servidor recibe este broadcast, busca en la base de datos la configuración del microcontrolador según su ID y le devuelve un JSON con la configuración de sus pines. El microcontrolador recibe el JSON, lo parsea, y lo configura sus pines. Por último, se suscribe al canal por el cual el servidor le comandará encenderse o apagarse.
+Al llamar al método POST /toggledevice con el ID del dispositivo, el servidor obtiene el estado actual del microcontrolador y envía un mensaje MQTT al mismo para cambiar su estado.
+Al presionar el botón conectado a un pin del microcontrolador, este entra en modo "override", encendiendo el led e impidiendo que sea apagado por el servidor. Al presionar nuevamente el botón, se sale del modo "override" y se apaga manualmente el led, recibiendo comandos nuevamente.
 
 ## Configuración
 
