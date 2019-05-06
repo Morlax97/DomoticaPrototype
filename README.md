@@ -47,7 +47,7 @@ mysql -u apiuser --password=apipwd
   setup VARCHAR(200) NOT NULL,
 	);
   INSERT INTO Sensores(nombre,status,setup)
-  VALUES('led',false,'{"pin":13,"mode":"OUTPUT"}')
+  VALUES('led',false,'[{"pin":13,"mode":"OUTPUT"},{"pin":14,"mode":"INPUT_PULLUP"}]')
 	quit;
 ```
 ### Configurar git y descargar proyecto
