@@ -3,11 +3,11 @@
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
 
-const char* ssid     = "HF-Staff";
-const char* password = "S74ffW1F1";
+const char* ssid     = ""; // WIFI SSID
+const char* password = ""; // WIFI PASSWORD
 char* action = "action/device/1";
 char* estado = "status/device/1";
-char* server = "cherencio.henryford.esc.edu.ar";
+char* server = ""; // SERVER
 unsigned int bcastPort = 3000;
 unsigned int udpLocalPort = 2500;
 int LEDPin; // 13 = D7
@@ -16,7 +16,7 @@ int override = 0;
 int configured = 0;
 char* bcastPacket = "{\"id\":1,\"type\":\"device\"}";
 char incomingPacket[255];
-char* bcastIP = "10.0.20.22";
+char* bcastIP = ""; // BROADCAST O SERVER
 StaticJsonDocument<200> jsonDocument;
 JsonArray array;
 WiFiClient wifiClient;
